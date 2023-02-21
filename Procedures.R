@@ -78,7 +78,9 @@ ADDIS_Graph_fdr=function(alpha, gamma, w,h, tau, lambda, e, p, n){
   R=rep(0,n)
   count=0
   alpha_ind=rep(0,n)
-  alpha_ind[1]=min(alpha*gamma[1]*(tau[1]-lambda[1]), lambda[1])
+  alpha_graph=rep(0,n)
+  alpha_graph=alpha*gamma[1]*(tau[1]-lambda[1])
+  alpha_ind[1]=min(alpha_graph[1], lambda[1])
   if(p[1]>tau[1] | p[1]<=lambda[1]){
     C_S[1]=1
   }
@@ -86,8 +88,9 @@ ADDIS_Graph_fdr=function(alpha, gamma, w,h, tau, lambda, e, p, n){
     count=1
   }
   for(i in 2:n){
-    e_ind=e[1:(i-1)]<=rep(i,i-1)  
-    alpha_ind[i]=min(lambda[i],(alpha*gamma[i]+sum(C_S[1:(i-1)]*e_ind[1:(i-1)]*alpha_ind[1:(i-1)]*w[1:(i-1),i]/(tau[1:(i-1)]-lambda[1:(i-1)]))+sum(e_ind[1:(i-1)]*h[(1:i-1),i]*R[1:(i-1)])*alpha)*(tau[i]-lambda[i])) 
+    e_ind=e[1:(i-1)]<=rep(i,i-1)
+    alpha_graph[i]=(alpha*gamma[i]+sum(C_S[1:(i-1)]*e_ind[1:(i-1)]*alpha_graph[1:(i-1)]*w[1:(i-1),i]/(tau[1:(i-1)]-lambda[1:(i-1)]))+sum(e_ind[1:(i-1)]*h[(1:i-1),i]*R[1:(i-1)])*alpha)*(tau[i]-lambda[i])
+    alpha_ind[i]=min(lambda[i],alpha_graph[i]) 
     if(p[i]>tau[i] | p[i]<=lambda[i]){
       C_S[i]=1
     }
@@ -101,6 +104,5 @@ ADDIS_Graph_fdr=function(alpha, gamma, w,h, tau, lambda, e, p, n){
   }
   return(alpha_ind)
 }
-
 
 
