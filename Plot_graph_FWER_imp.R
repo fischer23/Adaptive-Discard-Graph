@@ -1,4 +1,4 @@
-#Generates plots for Figure 5 of the paper 
+#Generates plots for Figure 6 of the paper 
 #"ADDIS-Graphs for online error control with application to platform trials"
 
 library(ggplot2)
