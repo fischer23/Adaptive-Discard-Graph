@@ -17,7 +17,12 @@ names <- c(
   "Colchicine", "Baricitinib", "High-dose steroids", "Empagliflozin"
 )
 
+# The lags were determined by a publication of the data monitoring committee of the RECOVERY trial
+# (Sandercock et al. 2022)
+
 lags <- c(0, 1, 2, 3, 4, 5, 3, 3, 3, 3, 1, 2)
+
+# The p-values are obtained from the RECOVERY Trial website https://www.recoverytrial.net/results
 
 p <- c(0.0003, 0.58, 0.1, 0.99, 0.007, 0.34, 0.001, 0.35, 0.63, 0.026, 0.0012, 0.64)
 
@@ -88,3 +93,11 @@ for (q in c(0.6, 0.7, 0.8)) {
 
   count <- count + 1
 }
+
+
+### References
+
+# Sandercock, P. A., Darbyshire, J., DeMets, D., Fowler, R., Lalloo, D. G., Munavvar, M., Staplin, N., Warris, A.,
+# Wittes, J., and Emberson, J. R. (2022). Experiences of the data monitoring committee for the RECOVERY trial,
+# a large-scale adaptive platform randomised trial of treatments for patients hospitalised with COVID-19. Trials,
+# 23(1):881.

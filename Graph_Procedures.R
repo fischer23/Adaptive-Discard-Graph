@@ -234,7 +234,7 @@ ADDIS_Graph_fdr <- function(alpha, gamma, w, h, tau, lambda, e, p, n) {
   count <- 0
   alpha_ind <- rep(0, n)
   alpha_graph <- rep(0, n)
-  alpha_graph <- alpha * gamma[1] * (tau[1] - lambda[1])
+  alpha_graph[1] <- alpha * gamma[1] * (tau[1] - lambda[1])
   alpha_ind[1] <- min(alpha_graph[1], lambda[1])
   if (p[1] > tau[1] | p[1] <= lambda[1]) {
     C_S[1] <- 1
@@ -256,6 +256,61 @@ ADDIS_Graph_fdr <- function(alpha, gamma, w, h, tau, lambda, e, p, n) {
     if (count == 1) {
       R[i] <- 0
     }
+  }
+  return(alpha_ind)
+}
+
+
+# ADDIS*_{async}
+ADDIS_star <- function(alpha, gamma, tau, lambda, e, p, n) {
+  if (length(tau) == 1) {
+    tau <- rep(tau, n)
+  }
+  if (length(lambda) == 1) {
+    lambda <- rep(lambda, n)
+  }
+  if (length(gamma) != n | length(tau) != n | length(lambda) != n | length(p) != n | length(e) != n) {
+    warning("mismatching length")
+  }
+  k_j <- c()
+
+  alpha_ind <- rep(0, n)
+  alpha_addis <- rep(0, n)
+  alpha_addis[1] <- alpha * gamma[1] * (tau[1] - lambda[1])
+  alpha_ind[1] <- min(alpha_addis[1], lambda[1])
+
+  for (i in 2:n) {
+    finished <- (e[1:(i - 1)] <= (i - 1))
+    not_finished <- 1 - finished
+
+    if (sum(p[1:(i - 1)] <= alpha_ind[1:(i - 1)] & finished) > length(k_j)) {
+      k_j <- c(k_j, i - 1)
+    }
+
+    S_star <- sum(p[1:(i - 1)] <= tau[1:(i - 1)] & finished)
+    C_star <- sum(p[1:(i - 1)] <= lambda[1:(i - 1)] & finished)
+
+    if (length(k_j) > 0) {
+      k_j_star <- rep(0, length(k_j))
+      for (a in 1:length(k_j)) {
+        k_j_star[a] <- sum(p[1:(i - 1)] <= tau[1:(i - 1)] & e[1:(i - 1)] <= k_j[a])
+      }
+    }
+
+    if (length(k_j) > 0) {
+      C_j_plus <- rep(0, length(k_j))
+      for (a in 1:length(k_j)) {
+        C_j_plus[a] <- sum(p[1:(i - 1)] <= lambda[1:(i - 1)] & e[1:(i - 1)] > k_j[a] & e[1:(i - 1)] < i)
+      }
+    }
+
+    if (length(k_j) >= 2) {
+      alpha_addis[i] <- (gamma[1 + S_star - C_star + sum(not_finished)] + sum(gamma[1 + S_star + sum(not_finished) - k_j_star[2:length(k_j)] - C_j_plus[2:length(k_j)]])) * alpha * (tau[i] - lambda[i])
+    } else {
+      alpha_addis[i] <- gamma[1 + S_star - C_star + sum(not_finished)] * alpha * (tau[i] - lambda[i])
+    }
+
+    alpha_ind[i] <- min(lambda[i], alpha_addis[i])
   }
   return(alpha_ind)
 }
