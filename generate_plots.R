@@ -63,11 +63,11 @@ ggsave("results/FigureS4.pdf", combined_plot, width = 7.64, height = 7)
 
 ### Figure S.5
 
-p1 <- plot_generator_FWER_corr("results/FWER_corr_mu_N.rds", "mu_N")
+p1 <- plot_generator_FWER_corr("results/FWER_corr_batch.rds", "batch")
 
 p2 <- plot_generator_FWER_corr("results/FWER_corr_rho.rds", "rho")
 
-p3 <- plot_generator_FWER_corr("results/FWER_corr_batch.rds", "batch")
+p3 <- plot_generator_FWER_corr("results/FWER_corr_mu_N.rds", "mu_N")
 
 combined_plot <- p1 / p2 / p3
 

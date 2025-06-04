@@ -196,7 +196,8 @@ plot_generator_FWER_batchsize <- function(input_filename, comparison_proc) {
       geom_line(aes(color = Metric)) +
       geom_point(aes(color = Metric)) +
       geom_hline(yintercept = alpha, linetype = "dashed") +
-      scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", "10" = "dashed", "20" = "dotted")) +
+      scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", 
+                                                            "10" = "dashed", "20" = "dotted")) +
       scale_color_manual(guide = "none", values = c("FWER" = "#f84f4f", "Power" = "#f84f4f")) +
       scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
       xlab(expression(pi[A])) +
@@ -209,7 +210,8 @@ plot_generator_FWER_batchsize <- function(input_filename, comparison_proc) {
       geom_line(aes(color = Metric)) +
       geom_point(aes(color = Metric)) +
       geom_hline(yintercept = alpha, linetype = "dashed") +
-      scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", "10" = "dashed", "20" = "dotted")) +
+      scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", 
+                                                            "10" = "dashed", "20" = "dotted")) +
       scale_color_manual(guide = "none", values = c("FWER" = "#f84f4f", "Power" = "#f84f4f")) +
       scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
       xlab(expression(pi[A])) +
@@ -228,7 +230,8 @@ plot_generator_FWER_batchsize <- function(input_filename, comparison_proc) {
     geom_line(aes(color = Metric)) +
     geom_point(aes(color = Metric, shape = Metric)) +
     geom_hline(yintercept = alpha, linetype = "dashed") +
-    scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", "10" = "dashed", "20" = "dotted")) +
+    scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", 
+                                                          "10" = "dashed", "20" = "dotted")) +
     scale_color_manual(guide = "none", values = c("FWER" = "cornflowerblue", "Power" = "cornflowerblue")) +
     scale_shape_manual(guide = "none", values = c("FWER" = 17, "Power" = 17)) +
     scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
@@ -251,12 +254,13 @@ plot_generator_FWER_batchsize <- function(input_filename, comparison_proc) {
 
 # Input:
 # smallest_batches: smallest batch-sizes (some vector containing values from {1,2,5,10})
+# direction:        specifies whether the batch-size is decreasing ("decr") or increasing ("incr")
 # filename: Output filename
 
 # Output: Saves simulation results (power and FWER) of the ADDIS-Spending and ADDIS-Graph
 #         for the batch-sizes that vary over time in file "filename"
 
-data_generator_FWER_smallest_batch <- function(smallest_batches, filename) {
+data_generator_FWER_smallest_batch <- function(smallest_batches, direction, filename) {
   ### Simulation parameters
   m <- 1000 # Number of Trials
   n <- 100
@@ -287,11 +291,19 @@ data_generator_FWER_smallest_batch <- function(smallest_batches, filename) {
     # where s is the smallest batch_size
 
     # Lags for the local dependence structure
-
-    lags <- c(
-      rep((0:(smallest_batch - 1)), numb_batch), rep((0:(2 * smallest_batch - 1)), numb_batch),
-      rep((0:(3 * smallest_batch - 1)), numb_batch), rep((0:(4 * smallest_batch - 1)), numb_batch)
-    )
+    
+    if(direction == "incr"){
+      lags <- c(
+        rep((0:(smallest_batch - 1)), numb_batch), rep((0:(2 * smallest_batch - 1)), numb_batch),
+        rep((0:(3 * smallest_batch - 1)), numb_batch), rep((0:(4 * smallest_batch - 1)), numb_batch)
+      )
+    }else{
+      lags <- c(
+        rep((0:(4 * smallest_batch - 1)), numb_batch), rep((0:(3 * smallest_batch - 1)), numb_batch), 
+        rep((0:(2 * smallest_batch - 1)), numb_batch), rep((0:(smallest_batch - 1)), numb_batch)
+      )
+    }
+    
 
     # Calculate d_j for ADDIS-Graph
     k_lag <- seq(1, n, 1) - lags
@@ -314,18 +326,31 @@ data_generator_FWER_smallest_batch <- function(smallest_batches, filename) {
       for (j in 1:m) {
         hypo[, j] <- rbinom(n, 1, pi_A)
         X <- rep(0, n)
-        for (a in 1:4) {
-          for (k in 1:numb_batch) {
-            # parameters for correlation structure
-            sigma <- matrix(corr, smallest_batch * a, smallest_batch * a) + diag((1 - corr), smallest_batch * a)
-            mu <- rep(0, smallest_batch * a)
+        if(direction == "incr"){
+          for (a in 1:4) {
+            for (k in 1:numb_batch) {
+              # parameters for correlation structure
+              sigma <- matrix(corr, smallest_batch * a, smallest_batch * a) + diag((1 - corr), smallest_batch * a)
+              mu <- rep(0, smallest_batch * a)
 
-            place_X <- (smallest_batch * numb_batch * sum(1:(a - 1))) * (a > 1)
-            # generation of test statistic
-            X[(((k - 1) * smallest_batch * a + 1) + place_X):((k * smallest_batch * a) + place_X)] <- mvrnorm(1, mu, sigma)
+              place_X <- (smallest_batch * numb_batch * sum(1:(a - 1))) * (a > 1)
+              # generation of test statistic
+              X[(((k - 1) * smallest_batch * a + 1) + place_X):((k * smallest_batch * a) + place_X)] <- mvrnorm(1, mu, sigma)
+            }
+          }
+        }else{
+          for (a in 4:1) {
+            for (k in 1:numb_batch) {
+              # parameters for correlation structure
+              sigma <- matrix(corr, smallest_batch * a, smallest_batch * a) + diag((1 - corr), smallest_batch * a)
+              mu <- rep(0, smallest_batch * a)
+              
+              place_X <- (smallest_batch * numb_batch * sum(4:(a + 1))) * (a < 4)
+              # generation of test statistic
+              X[(((k - 1) * smallest_batch * a + 1) + place_X):((k * smallest_batch * a) + place_X)] <- mvrnorm(1, mu, sigma)
+            }
           }
         }
-
         Z <- mu_N * (1 - hypo[, j]) + mu_A * hypo[, j] + X
         p[, j] <- pnorm(-Z)
       }
@@ -429,7 +454,8 @@ plot_generator_FWER_smallest_batch <- function(input_filename) {
     geom_line(aes(color = Metric)) +
     geom_point(aes(color = Metric)) +
     geom_hline(yintercept = alpha, linetype = "dashed") +
-    scale_linetype_manual(name = "Smallest batch-size", values = c("1" = "solid", "2" = "longdash", "5" = "dashed", "10" = "dotted")) +
+    scale_linetype_manual(name = "Smallest batch-size", values = c("1" = "solid", "2" = "longdash", 
+                                                                   "5" = "dashed", "10" = "dotted")) +
     scale_color_manual(guide = "none", values = c("FWER" = "#f84f4f", "Power" = "#f84f4f")) +
     scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
     xlab(expression(pi[A])) +
@@ -447,7 +473,8 @@ plot_generator_FWER_smallest_batch <- function(input_filename) {
     geom_line(aes(color = Metric)) +
     geom_point(aes(color = Metric, shape = Metric)) +
     geom_hline(yintercept = alpha, linetype = "dashed") +
-    scale_linetype_manual(name = "Smallest batch-size", values = c("1" = "solid", "2" = "longdash", "5" = "dashed", "10" = "dotted")) +
+    scale_linetype_manual(name = "Smallest batch-size", values = c("1" = "solid", "2" = "longdash", 
+                                                                   "5" = "dashed", "10" = "dotted")) +
     scale_color_manual(guide = "none", values = c("FWER" = "cornflowerblue", "Power" = "cornflowerblue")) +
     scale_shape_manual(guide = "none", values = c("FWER" = 17, "Power" = 17)) +
     scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
@@ -633,7 +660,8 @@ plot_generator_FDR_async <- function(input_filename) {
     geom_line(aes(color = Metric)) +
     geom_point(aes(color = Metric)) +
     geom_hline(yintercept = alpha, linetype = "dashed") +
-    scale_linetype_manual(name = "Test duration", values = c("0" = "solid", "1" = "longdash", "2" = "dashed", "5" = "dotted")) +
+    scale_linetype_manual(name = "Test duration", values = c("0" = "solid", "1" = "longdash", 
+                                                             "2" = "dashed", "5" = "dotted")) +
     scale_color_manual(guide = "none", values = c("FDR" = "#f84f4f", "Power" = "#f84f4f")) +
     scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
     xlab(expression(pi[A])) +
@@ -652,7 +680,8 @@ plot_generator_FDR_async <- function(input_filename) {
     geom_line(aes(color = Metric)) +
     geom_point(aes(color = Metric, shape = Metric)) +
     geom_hline(yintercept = alpha, linetype = "dashed") +
-    scale_linetype_manual(name = "Test duration", values = c("0" = "solid", "1" = "longdash", "2" = "dashed", "5" = "dotted")) +
+    scale_linetype_manual(name = "Test duration", values = c("0" = "solid", "1" = "longdash", 
+                                                             "2" = "dashed", "5" = "dotted")) +
     scale_color_manual(guide = "none", values = c("FDR" = "cornflowerblue", "Power" = "cornflowerblue")) +
     scale_shape_manual(guide = "none", values = c("FDR" = 17, "Power" = 17)) +
     scale_y_continuous(breaks = seq(0, 1.2, 0.2), limits = c(0, 1), expand = c(0, 0)) +
@@ -894,13 +923,16 @@ plot_generator_FWER_corr <- function(input_filename, var_ind) {
     theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
   if (var_ind == "batch") {
-    p_corr <- p_corr + scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", "10" = "dashed", "20" = "dotted")) +
+    p_corr <- p_corr + scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", 
+                                                                             "10" = "dashed", "20" = "dotted")) +
       ggtitle(expression("Adaptive-Graph"[corr]))
   } else if (var_ind == "mu_N") {
-    p_corr <- p_corr + scale_linetype_manual(name = expression(paste(mu[N], "  ")), values = c("0" = "solid", "-0.5" = "longdash", "-1" = "dashed", "-2" = "dotted")) +
+    p_corr <- p_corr + scale_linetype_manual(name = expression(paste(mu[N], "  ")), values = c("0" = "solid", "-0.5" = "longdash", 
+                                                                                               "-1" = "dashed", "-2" = "dotted")) +
       ggtitle(expression("Adaptive-Graph"[corr]))
   } else {
-    p_corr <- p_corr + scale_linetype_manual(name = expression(paste(rho, "  ")), values = c("0.3" = "solid", "0.5" = "longdash", "0.7" = "dashed", "0.9" = "dotted")) +
+    p_corr <- p_corr + scale_linetype_manual(name = expression(paste(rho, "  ")), values = c("0.3" = "solid", "0.5" = "longdash", 
+                                                                                             "0.7" = "dashed", "0.9" = "dotted")) +
       ggtitle(expression("Adaptive-Graph"[corr]))
   }
 
@@ -922,13 +954,19 @@ plot_generator_FWER_corr <- function(input_filename, var_ind) {
     theme(panel.border = element_rect(colour = "black", fill = NA, size = 1))
 
   if (var_ind == "batch") {
-    p_graph <- p_graph + scale_linetype_manual(name = "Batch-size", values = c("1" = "solid", "5" = "longdash", "10" = "dashed", "20" = "dotted")) +
+    p_graph <- p_graph + scale_linetype_manual(name = "Batch-size", 
+                                               values = c("1" = "solid", "5" = "longdash", 
+                                                          "10" = "dashed", "20" = "dotted")) +
       ggtitle(expression("Adaptive-Graph"[conf]))
   } else if (var_ind == "mu_N") {
-    p_graph <- p_graph + scale_linetype_manual(name = expression(paste(mu[N], "  ")), values = c("0" = "solid", "-0.5" = "longdash", "-1" = "dashed", "-2" = "dotted")) +
+    p_graph <- p_graph + scale_linetype_manual(name = expression(paste(mu[N], "  ")), 
+                                               values = c("0" = "solid", "-0.5" = "longdash", 
+                                                          "-1" = "dashed", "-2" = "dotted")) +
       ggtitle(expression("ADDIS-Graph"[conf]))
   } else {
-    p_graph <- p_graph + scale_linetype_manual(name = expression(paste(rho, "  ")), values = c("0.3" = "solid", "0.5" = "longdash", "0.7" = "dashed", "0.9" = "dotted")) +
+    p_graph <- p_graph + scale_linetype_manual(name = expression(paste(rho, "  ")), 
+                                               values = c("0.3" = "solid", "0.5" = "longdash", 
+                                                          "0.7" = "dashed", "0.9" = "dotted")) +
       ggtitle(expression("Adaptive-Graph"[conf]))
   }
 

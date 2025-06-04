@@ -89,11 +89,11 @@ for (q in c(0.6, 0.7, 0.8)) {
   alpha_ind_Graph[, count] <- ADDIS_Graph_imp(alpha, gamma, tau, lambda, lags, d_j, p, n)
   rej_Graph[, count] <- alpha_ind_Graph[, count] >= p
   n_rej_Graph[count] <- sum(rej_Graph[, count])
-  future_level_Graph[count] <- alpha - (sum(alpha_ind_Graph[which((p <= lambda | p > tau) == 0), count])) / (tau - lambda)
+  future_level_Graph[count] <- alpha - (sum(alpha_ind_Graph[which((p <= lambda | p > tau) == 0), count])) / 
+                               (tau - lambda)
 
   count <- count + 1
 }
-
 
 ### References
 

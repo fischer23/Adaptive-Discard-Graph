@@ -8,11 +8,15 @@
 # gamma: Weights for Alpha-Spending. Non-negative n-dimensional vector with sum less than 1.
 # w:     Weights for graphical procedures. Upper triangle n x n matrix with row sum less than 1.
 # h:     Additional weights for FDR-ADDIS-Graph. Upper triangle n x n matrix with row sum less than 1.
-# tau:   Used for discarding procedures. n-dimensional vector with values between 0 and 1. Besides, it can be chosen as a fixed number between 0 and 1.
-# lambda:Used for the adaptive procedures. n-dimensional vector with values between 0 and tau_i. Besides, it can be chosen as a fixed number fulfilling these conditions.
-# lags:  Representing the given local dependence structure. n-dimensional vector of natural numbers (including 0) or a fix natural number (including 0).
+# tau:   Used for discarding procedures. n-dimensional vector with values between 0 and 1. Besides, 
+#        it can be chosen as a fixed number between 0 and 1.
+# lambda:Used for the adaptive procedures. n-dimensional vector with values between 0 and tau_i. 
+#        Besides, it can be chosen as a fixed number fulfilling these conditions.
+# lags:  Representing the given local dependence structure. n-dimensional vector of natural numbers 
+#        (including 0) or a fix natural number (including 0).
 # d_j:   First future $p$-value that is independent of P_j. n-dimensional vector of natural numbers with d_j>j.
-# e:     Stopping times in an asynchronous testing setup. n-dimensional vector of natural numbers (e_1,...,e_n) such that e_i >= i for all i=1,...,n.
+# e:     Stopping times in an asynchronous testing setup. n-dimensional vector of natural numbers 
+#        (e_1,...,e_n) such that e_i >= i for all i=1,...,n.
 # p:     n-dimensional vector of p-values.
 # corr:  Correlation matrix of the normally distributed test statistics. Symmetric and positiv-semidefinite nxn matrix.
 
@@ -111,7 +115,10 @@ ADDIS_Graph <- function(alpha, gamma, w, tau, lambda, lags, p, n) {
     if (lags[i] >= i - 1) {
       alpha_ind[i] <- alpha * gamma[i] * (tau[i] - lambda[i])
     } else {
-      alpha_ind[i] <- (alpha * gamma[i] + sum(C_S[1:(i - lags[i] - 1)] * alpha_ind[1:(i - lags[i] - 1)] * w[1:(i - lags[i] - 1), i] / (tau[1:(i - lags[i] - 1)] - lambda[1:(i - lags[i] - 1)]))) * (tau[i] - lambda[i])
+      alpha_ind[i] <- (alpha * gamma[i] + sum(C_S[1:(i - lags[i] - 1)] * 
+                      alpha_ind[1:(i - lags[i] - 1)] * w[1:(i - lags[i] - 1), i] / 
+                      (tau[1:(i - lags[i] - 1)] - lambda[1:(i - lags[i] - 1)]))) * 
+                      (tau[i] - lambda[i])
     }
     if (p[i] > tau[i] | p[i] <= lambda[i]) {
       C_S[i] <- 1
@@ -139,7 +146,9 @@ ADDIS_Graph_imp <- function(alpha, gamma, tau, lambda, lags, d_j, p, n) {
   w <- matrix(0, n, n)
   w[1, 2:n] <- (gamma[1:(n - 1)] - gamma[2:n]) / gamma[1]
   for (j in 2:(n - 1)) {
-    w[j, (j + 1):n] <- (gamma[(sum(S_C[1:(j - 1)]) + 1):(sum(S_C[1:(j - 1)]) + n - j)] - gamma[(sum(S_C[1:(j - 1)]) + 2):(sum(S_C[1:(j - 1)]) + n - j + 1)]) / gamma[sum(S_C[1:(j - 1)]) + 1]
+    w[j, (j + 1):n] <- (gamma[(sum(S_C[1:(j - 1)]) + 1):(sum(S_C[1:(j - 1)]) + n - j)] - 
+                        gamma[(sum(S_C[1:(j - 1)]) + 2):(sum(S_C[1:(j - 1)]) + n - j + 1)]) / 
+                        gamma[sum(S_C[1:(j - 1)]) + 1]
   }
   w_star <- w
   w_minus <- matrix(0, n, n)
@@ -171,7 +180,9 @@ ADDIS_Graph_imp <- function(alpha, gamma, tau, lambda, lags, d_j, p, n) {
     if (lags[i] >= i - 1) {
       alpha_ind[i] <- alpha * gamma[i] * (tau[i] - lambda[i])
     } else {
-      alpha_ind[i] <- (alpha * gamma[i] + sum(C_S[1:(i - lags[i] - 1)] * alpha_ind[1:(i - lags[i] - 1)] * w_star[1:(i - lags[i] - 1), i] / (tau[1:(i - lags[i] - 1)] - lambda[1:(i - lags[i] - 1)]))) * (tau[i] - lambda[i])
+      alpha_ind[i] <- (alpha * gamma[i] + sum(C_S[1:(i - lags[i] - 1)] * 
+                       alpha_ind[1:(i - lags[i] - 1)] * w_star[1:(i - lags[i] - 1), i] / 
+                       (tau[1:(i - lags[i] - 1)] - lambda[1:(i - lags[i] - 1)]))) * (tau[i] - lambda[i])
     }
   }
   return(alpha_ind)
@@ -202,7 +213,11 @@ ADDIS_Graph_corr <- function(alpha, corr, gamma, w, lambda, lags, p, n) {
     if (lags[i] >= i - 1) {
       alpha_ind[i] <- alpha * gamma[i] * (1 - lambda[i])
     } else {
-      alpha_ind[i] <- (alpha * gamma[i] + sum(C[1:(i - lags[i] - 1)] * alpha_ind[1:(i - lags[i] - 1)] * w[1:(i - lags[i] - 1), i] / (1 - lambda[1:(i - lags[i] - 1)])) + sum((1 - C[1:(i - lags[i] - 1)]) * (alpha_ind[1:(i - lags[i] - 1)] - alpha_used[1:(i - lags[i] - 1)]) * w[1:(i - lags[i] - 1), i] / (1 - lambda[1:(i - lags[i] - 1)]))) * (1 - lambda[i])
+      alpha_ind[i] <- (alpha * gamma[i] + sum(C[1:(i - lags[i] - 1)] * 
+                      alpha_ind[1:(i - lags[i] - 1)] * w[1:(i - lags[i] - 1), i] / 
+                      (1 - lambda[1:(i - lags[i] - 1)])) + sum((1 - C[1:(i - lags[i] - 1)]) * 
+                      (alpha_ind[1:(i - lags[i] - 1)] - alpha_used[1:(i - lags[i] - 1)]) * 
+                      w[1:(i - lags[i] - 1), i] / (1 - lambda[1:(i - lags[i] - 1)]))) * (1 - lambda[i])
     }
     C_lag <- c(C_idx[C_idx >= (i - lags[i]) & C_idx < i], i)
     if (length(C_lag) == 1) {
@@ -244,7 +259,10 @@ ADDIS_Graph_fdr <- function(alpha, gamma, w, h, tau, lambda, e, p, n) {
   }
   for (i in 2:n) {
     e_ind <- e[1:(i - 1)] <= rep(i, i - 1)
-    alpha_graph[i] <- (alpha * gamma[i] + sum(C_S[1:(i - 1)] * e_ind[1:(i - 1)] * alpha_graph[1:(i - 1)] * w[1:(i - 1), i] / (tau[1:(i - 1)] - lambda[1:(i - 1)])) + sum(e_ind[1:(i - 1)] * h[(1:i - 1), i] * R[1:(i - 1)]) * alpha) * (tau[i] - lambda[i])
+    alpha_graph[i] <- (alpha * gamma[i] + sum(C_S[1:(i - 1)] * e_ind[1:(i - 1)] * 
+                      alpha_graph[1:(i - 1)] * w[1:(i - 1), i] / (tau[1:(i - 1)] - 
+                      lambda[1:(i - 1)])) + sum(e_ind[1:(i - 1)] * h[(1:i - 1), i] * 
+                      R[1:(i - 1)]) * alpha) * (tau[i] - lambda[i])
     alpha_ind[i] <- min(lambda[i], alpha_graph[i])
     if (p[i] > tau[i] | p[i] <= lambda[i]) {
       C_S[i] <- 1
@@ -305,9 +323,12 @@ ADDIS_star <- function(alpha, gamma, tau, lambda, e, p, n) {
     }
 
     if (length(k_j) >= 2) {
-      alpha_addis[i] <- (gamma[1 + S_star - C_star + sum(not_finished)] + sum(gamma[1 + S_star + sum(not_finished) - k_j_star[2:length(k_j)] - C_j_plus[2:length(k_j)]])) * alpha * (tau[i] - lambda[i])
+      alpha_addis[i] <- (gamma[1 + S_star - C_star + sum(not_finished)] + 
+                           sum(gamma[1 + S_star + sum(not_finished) - k_j_star[2:length(k_j)] -
+                                       C_j_plus[2:length(k_j)]])) * alpha * (tau[i] - lambda[i])
     } else {
-      alpha_addis[i] <- gamma[1 + S_star - C_star + sum(not_finished)] * alpha * (tau[i] - lambda[i])
+      alpha_addis[i] <- gamma[1 + S_star - C_star + sum(not_finished)] * 
+                        alpha * (tau[i] - lambda[i])
     }
 
     alpha_ind[i] <- min(lambda[i], alpha_addis[i])
