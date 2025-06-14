@@ -8,7 +8,7 @@ library(patchwork)
 
 source("sim_functions.R")
 
-### Figure 8
+### Figure 7
 
 p1 <- plot_generator_FWER_batchsize("results/FWER_gamma_logq.rds", "Spending")
 
@@ -18,7 +18,7 @@ p3 <- plot_generator_FWER_batchsize("results/FWER_gamma_q_2.rds", "Spending")
 
 combined_plot <- p1 / p2 / p3
 
-ggsave("results/Figure8.pdf", combined_plot, width = 7.64, height = 10.5)
+ggsave("results/Figure7.pdf", combined_plot, width = 7.64, height = 10.5)
 
 ### Figure S.1
 

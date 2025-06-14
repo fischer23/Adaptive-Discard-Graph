@@ -10,7 +10,7 @@ library(mvtnorm)
 source("sim_functions.R")
 source("Graph_Procedures.R")
 
-# Generate sim results used in Figure 8 and S.1
+# Generate sim results used in Figure 7 and S.1
 
 data_generator_FWER_batchsize(
   gamma = (1 / (((1:100) + 1) * log((1:100) + 1)^2)) / 2.06227, mu_N = -0.5,
