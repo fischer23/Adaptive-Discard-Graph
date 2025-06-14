@@ -1,3 +1,6 @@
+### This R-file generates the simulation results of the paper
+# "ADDIS-Graphs for online error control with application to platform trials"
+
 library(MASS)
 library(patchwork)
 library(reshape)

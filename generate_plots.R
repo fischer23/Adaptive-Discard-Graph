@@ -1,3 +1,6 @@
+### This R-file generates the plots of the paper
+# "ADDIS-Graphs for online error control with application to platform trials"
+
 library(ggplot2)
 library(patchwork)
 
