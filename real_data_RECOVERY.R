@@ -83,13 +83,15 @@ for (q in c(0.6, 0.7, 0.8)) {
   alpha_ind_Spending[, count] <- ADDIS_Spending(alpha, gamma, tau, lambda, lags, p, n)
   rej_Spending[, count] <- alpha_ind_Spending[, count] >= p
   n_rej_Spending[count] <- sum(rej_Spending[, count])
-  future_level_Spending[count] <- alpha * sum(q^((sum((p > lambda & p <= tau)) + 1):10000) * (1 - q) / q)
+  future_level_Spending[count] <- alpha * sum(q^((sum((p > lambda & p <= tau)) + 1):10000) * 
+                                          (1 - q) / q)
 
   ## ADDIS-Graph_{local-u}
   alpha_ind_Graph[, count] <- ADDIS_Graph_imp(alpha, gamma, tau, lambda, lags, d_j, p, n)
   rej_Graph[, count] <- alpha_ind_Graph[, count] >= p
   n_rej_Graph[count] <- sum(rej_Graph[, count])
-  future_level_Graph[count] <- alpha - (sum(alpha_ind_Graph[which((p <= lambda | p > tau) == 0), count])) / 
+  future_level_Graph[count] <- alpha - 
+                               (sum(alpha_ind_Graph[which((p <= lambda | p > tau) == 0), count])) / 
                                (tau - lambda)
 
   count <- count + 1
@@ -97,7 +99,8 @@ for (q in c(0.6, 0.7, 0.8)) {
 
 ### References
 
-# Sandercock, P. A., Darbyshire, J., DeMets, D., Fowler, R., Lalloo, D. G., Munavvar, M., Staplin, N., Warris, A.,
-# Wittes, J., and Emberson, J. R. (2022). Experiences of the data monitoring committee for the RECOVERY trial,
-# a large-scale adaptive platform randomised trial of treatments for patients hospitalised with COVID-19. Trials,
+# Sandercock, P. A., Darbyshire, J., DeMets, D., Fowler, R., Lalloo, D. G., Munavvar, M.,
+# Staplin, N., Warris, A., Wittes, J., and Emberson, J. R. (2022). 
+# Experiences of the data monitoring committee for the RECOVERY trial, a large-scale adaptive
+# platform randomised trial of treatments for patients hospitalised with COVID-19. Trials,
 # 23(1):881.
