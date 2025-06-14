@@ -13,7 +13,7 @@ generate_sim_results.R: Uses the functions in sim_functions.R to generate all si
 
 generate_plots.R: Uses the simulation results in the results folder to create all plots of our paper.
 
-real_data_RECOVERY.R: Applies our ADDIS-Graph to the real data of the RECOVERY trial. The used p-values were extracted from the RECOVERY trial website https://www.recoverytrial.net/results and the local dependence structure by a publication of the data monitoring commitee of the RECOVERY trial (Sandercock et al. 2022).
+real_data_RECOVERY.R: Applies our ADDIS-Graph to the real data of the RECOVERY trial. The used p-values were extracted from the RECOVERY trial website https://www.recoverytrial.net/results and the local dependence structure by a publication of the data monitoring committee of the RECOVERY trial (Sandercock et al. 2022).
 
 results folder: Contains all results of the paper.
 
