@@ -110,7 +110,7 @@ for (q in c(0.6, 0.7, 0.8)) {
 results_table <- do.call(rbind, results_list)
 
 # Save results_table
-saveRDS(results_table, file = "results/results_RECOVERY.rds")
+saveRDS(results_table, file = "results/Table1.rds")
 
 ### References
 
