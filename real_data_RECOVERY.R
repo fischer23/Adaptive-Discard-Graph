@@ -1,7 +1,6 @@
 # Generates results for Table 1 of the paper
 # "ADDIS-Graphs for online error control with application to platform trials"
 
-rm(list = ls())
 library(ggplot2)
 library(MASS)
 library(patchwork)
@@ -43,6 +42,8 @@ alpha_ind_Graph <- matrix(0, ncol = n_q, nrow = n)
 rej_Graph <- matrix(0, ncol = n_q, nrow = n)
 n_rej_Graph <- rep(0, n_q)
 future_level_Graph <- rep(0, n_q)
+
+results_list <- list()
 
 count <- 1
 
@@ -93,9 +94,23 @@ for (q in c(0.6, 0.7, 0.8)) {
   future_level_Graph[count] <- alpha - 
                                (sum(alpha_ind_Graph[which((p <= lambda | p > tau) == 0), count])) / 
                                (tau - lambda)
+  
+  ## Append results to the list
+  results_list[[count]] <- data.frame(
+    q = q,
+    Procedure = c("Uncorrected", "ADDIS-Spending_local", "ADDIS-Graph_conf_u"),
+    Num_Rejections = c(n_rej_unc[count], n_rej_Spending[count], n_rej_Graph[count]),
+    Future_Level = c(future_level_unc[count], future_level_Spending[count], future_level_Graph[count])
+  )
 
   count <- count + 1
 }
+
+# Combine all rows
+results_table <- do.call(rbind, results_list)
+
+# Save results_table
+saveRDS(results_table, file = "results/results_RECOVERY.rds")
 
 ### References
 
